@@ -1,6 +1,6 @@
 from .core import convert_base
 from .complement import compute_complement
-from .vir_mob import convert_to_ieee754
+from .vir_mob import convert_to_ieee754, decode_ieee754
 from .arithmetic import perform_arithmetic
 
 # Import run_tests din modulul separat de teste
@@ -18,7 +18,7 @@ def read_cli_input():
     print("Comenzi:")
     print("  exit            - Ieșire")
     # print("  test            - Rulare teste obligatorii")
-    print("  vir_mob         - Mod Convertor IEEE 754")
+    print("  vir_mob         - Mod Convertor IEEE 754 (Real <-> IEEE)")
     print("  math            - Mod Aritmetică în Baze")
     print("  [număr]         - Mod Conversie Standard (implicit)")
     
@@ -50,17 +50,34 @@ def read_cli_input():
                 
             elif cmd_lower == 'vir_mob':
                 print("\n--- Mod Simplă Precizie IEEE 754 ---")
-                sir_numar = input("Introduceți număr: ").strip()
-                baza_sursa = input("Baza Sursă: ").strip()
-                if baza_sursa.isdigit():
-                    b_bin, b_hex = convert_to_ieee754(sir_numar, int(baza_sursa), verbose)
-                    print(f"\nRezultat (32-biți Binar): {b_bin}")
-                    print(f"Rezultat (Hex):          {b_hex}")
-                    # Formatare binar spațiat pentru lizibilitate
-                    spatiat = " ".join([b_bin[0], b_bin[1:9], b_bin[9:]])
-                    print(f"Structură (S Exp Mant):  {spatiat}")
+                print("1. Codificare (Real -> IEEE)")
+                print("2. Decodificare (IEEE -> Real)")
+                opt = input("Opțiune (1/2): ").strip()
+                
+                if opt == '2':
+                     # Decodificare
+                     sir_numar = input("Introduceți reprezentarea IEEE (Hex/Bin/Oct): ").strip()
+                     baza_input_str = input("Baza inputului (2, 8, 16): ").strip()
+                     
+                     if baza_input_str.isdigit() and int(baza_input_str) in [2, 8, 16]:
+                         res = decode_ieee754(sir_numar, int(baza_input_str), verbose)
+                         print(f"\nRezultat Decimal: {res}")
+                     else:
+                         print("Bază invalidă pentru decodificare (doar 2, 8, 16).")
                 else:
-                    print("Bază invalidă.")
+                    # Codificare (Default)
+                    sir_numar = input("Introduceți număr real: ").strip()
+                    baza_sursa = input("Baza Sursă (ex: 10): ").strip()
+                    if baza_sursa.isdigit():
+                        b_bin, b_hex, b_oct = convert_to_ieee754(sir_numar, int(baza_sursa), verbose)
+                        print(f"\nRezultat (32-biți Binar): {b_bin}")
+                        print(f"Rezultat (Hex):          {b_hex}")
+                        print(f"Rezultat (Octal):        {b_oct}")
+                        # Formatare binar spațiat pentru lizibilitate
+                        spatiat = " ".join([b_bin[0], b_bin[1:9], b_bin[9:]])
+                        print(f"Structură (S Exp Mant):  {spatiat}")
+                    else:
+                        print("Bază invalidă.")
                     
             elif cmd_lower == 'math':
                 print("\n--- Mod Aritmetică în Baze ---")

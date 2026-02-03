@@ -26,17 +26,30 @@ cu parte fracționară finită - reprezentare semn + modul - reprezentare
 ### 2.1 Modalitate de input
 
 Aplicația trebuie să citească datele **exclusiv de la tastatură**,
-folosind CLI standard.
+folosind un loop principal de comenzi.
 
-Utilizatorul trebuie să introducă: 1. numărul (ca string) 2. baza sursă
-(2, 8, 10 sau 16) 3. baza destinație (2, 8, 10 sau 16) 4. (opțional) număr de cifre/biți pentru complement (Radix sau Diminished)
+Comenzi disponibile în meniul principal:
+1. `[număr]` - Intră în **Modul Conversie Standard**. Utilizatorul introduce numărul, apoi i se cer interactiv baza sursă și baza destinație.
+2. `math` - Intră în **Modul Aritmetică în Baze**.
+3. `vir_mob` - Intră în **Modul Convertor IEEE 754**.
+4. `test` - Rulează suita de teste obligatorii.
+5. `exit` - Închide aplicația.
+
+### 2.2 Input Conversie Standard
+Dacă utilizatorul introduce un număr (care nu este o comandă), fluxul este:
+1. Se detectează input-ul ca fiind numărul de convertit.
+2. Se cere **baza sursă** (2, 8, 10 sau 16).
+3. Se cere **baza destinație** (2, 8, 10 sau 16).
+4. Se afișează rezultatul.
+5. (Workflow Integrat) Se oferă opțiunea de calculare a complementului (dacă e întreg).
 
 ### 2.3 Modul Verbose (Show Your Work)
-- Aplicația trebuie să suporte flag-ul `--v` introdus împreună cu numărul.
+- Aplicația trebuie să suporte flag-ul `--v` introdus împreună cu comanda sau numărul (ex: `math --v` sau `101 --v`).
 - Când este activat, programul trebuie să afișeze toți pașii matematici:
     - Descompunerea polinomială pentru conversia în baza 10.
     - Împărțirile succesive pentru partea întreagă în baza destinație.
     - Înmulțirile succesive pentru partea fracționară în baza destinație.
+    - Detaliile calculelor aritmetice (transport, împrumut etc.) în modul math.
 
 ------------------------------------------------------------------------
 
@@ -67,7 +80,7 @@ Orice conversie trebuie să urmeze EXCLUSIV schema:
 
 baza_sursă → baza 10 → baza_destinație
 
-Conversiile directe între baze sunt STRICT INTERZISE.
+Conversiile directe între baze sunt STRICT INTERZISE (cu excepția operațiilor aritmetice "math" în aceeași bază).
 
 ------------------------------------------------------------------------
 
@@ -165,42 +178,51 @@ Fracția se va păstra exact, fără rotunjiri.
 - Structura internă trebuie să folosească Programarea Orientată pe Obiecte (OOP) într-un stil accesibil (ex: clase cu nume intuitive în Română).
 - Variabilele interne și denumirile atributelor trebuie să folosească o terminologie mixtă sau preponderent în Română (ex: `p_intreaga`, `numarator`, `semn`).
 - Se vor folosi comentarii explicative pentru pașii principali.
-- Se acceptă (și se încurajează) utilizarea `f-strings` și `list comprehensions` pentru concizie.
+- Se acceptă utilizarea `f-strings` și `list comprehensions`.
 
 ------------------------------------------------------------------------
 
-## 12. Teste MINIME obligatorii
+## 14. Teste MINIME obligatorii
 
 -   -101.101 (baza 2) → -5.625 (baza 10)
 -   -13.625 (baza 10) → -1101.101 (baza 2)
 -   AF.3 (baza 16) → 175.1875 (baza 10)
 -   -5 (baza 10) → 11111011 (binar, 8 biți, complement)
+-   Rulează prin comanda `test`.
 
 ------------------------------------------------------------------------
 
-## 13. Structură impusă
+## 15. Structură impusă
 
-Codul trebuie să conțină funcții distincte pentru: - citire input CLI -
-parsing - conversie b → 10 - conversie 10 → b - complemente (Radix/Diminished) - formatare output
+Codul trebuie să conțină module distincte pentru:
+- `cli.py`: interfață și loop principal
+- `parser.py`: parsing și structuri de date
+- `core.py`: algoritmi de conversie (b → 10 și 10 → b)
+- `complement.py`: logică complemente
+- `arithmetic.py`: logică aritmetică generală
+- `direct_math.py`: algoritmi aritmetici direcți (bază la bază)
+- `vir_mob.py`: logică IEEE 754
 
 ------------------------------------------------------------------------
 
-## 15. Virgulă Mobilă (IEEE 754 - Single Precision)
+## 16. Virgulă Mobilă (IEEE 754 - Single Precision)
 
 -   Accesibil prin comanda `vir_mob`.
--   Conversie manuală din număr real în reprezentare pe 32 biți.
+-   **Codificare:** Conversie manuală din număr real în reprezentare pe 32 biți.
+-   **Decodificare:** Conversie manuală din reprezentare IEEE 754 (Binar, Hex, Octal) în valoare Zecimală.
 -   **Structură:** 1 bit Semn | 8 biți Exponent (Exces 127) | 23 biți Mantisă.
--   **Interdicții:** Nu se vor folosi funcții de sistem pentru împachetare biți (struct.pack). Totul se calculează matematic.
--   **Output:** Binar (32 biți) și Hexazecimal.
+-   **Interdicții:** Nu se vor folosi funcții de sistem pentru împachetare biți (struct.pack) sau conversii automate de tip float. Totul se calculează matematic.
+-   **Output (Codificare):** Binar (32 biți), Hexazecimal și Octal (cu padding corespunzător).
 
 ------------------------------------------------------------------------
 
-## 16. Aritmetică în Baze
+## 17. Aritmetică în Baze
 
+-   Accesibil prin comanda `math`.
 -   Suport pentru Adunare (+), Scădere (-), Înmulțire (*) și Împărțire (/).
--   Operanzii pot fi în baze diferite (ex: Baza 16 * Baza 2).
--   Calculul se face prin intermediul reprezentării interne exacte (fracții).
--   Rezultatul se convertește în baza cerută de utilizator.
+-   **Mod Mixt:** Dacă operanzii sunt în baze diferite, calculul se face prin reprezentarea internă (baza 10).
+-   **Mod Direct (Aceeași Bază):** Dacă operanzii și baza rezultat sunt identice (ex: Baza 2 + Baza 2 -> Baza 2), operațiile se vor efectua **DIRECT** în baza respectivă, folosind algoritmi specifici (adunare cu transport, scădere cu împrumut etc.), fără conversie intermediară a numerelor întregi în baza 10.
+-   Rezultatul final poate fi convertit ulterior dacă utilizatorul cere o bază diferită de cea a operanzilor.
 
 Implementarea este ACCEPTATĂ doar dacă: - respectă toate interdicțiile -
 produce rezultate exacte - nu folosește nicio funcție interzisă -

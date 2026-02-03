@@ -1,5 +1,6 @@
 from .parser import NumarIntern
 from .core import base_b_to_decimal, decimal_to_base_b
+from .direct_math import perform_direct_op
 
 def cmmdc(a, b):
     # Facem cmmdc ca sa simplificam
@@ -123,6 +124,10 @@ def perform_arithmetic(val1, base1, val2, base2, operation, target_base, verbose
     if verbose:
         print(f"\n[Aritmetică] {val1} (Baza {base1}) {operation} {val2} (Baza {base2})")
     
+    # Verificare Mod Direct (Aceeasi Baza)
+    if base1 == base2 and base1 == target_base:
+        return perform_direct_op(val1, val2, base1, operation, verbose=verbose)
+
     # 1. Conversie la intern
     int1 = base_b_to_decimal(val1, base1, verbose=False)
     int2 = base_b_to_decimal(val2, base2, verbose=False)
