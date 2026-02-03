@@ -1,2 +1,0 @@
-genereaza un test cu 2o de intrebari random din toate cursurile / seminarii, cu intrebarile amestecate,cu pondere 75% cursuri, 25% seminarii, tip grila, cu 4 variante de raspuns, 10% din ele cu variante corecte multiple dar maxim 3
-
